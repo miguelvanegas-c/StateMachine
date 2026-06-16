@@ -31,14 +31,21 @@ The backend is built with **FastAPI** and follows a multi‑layer architecture t
 *![alt text](images/routes.png)
 
 - **Services** – Contain the **core business logic**. Services orchestrate operations, apply rules, trigger state transitions, and manage transactions. They depend on repositories and mappers, never directly on the database.
+  
 ![alt text](images/service.png)
+
 - **Repositories** – Abstract all database interactions. They use mappers to convert between MongoDB documents and domain models. This layer isolates the database technology (MongoDB) from the rest of the application.
+  
 ![alt text](images/repository.png)
+
 - **Schemas** – Pydantic models that define the structure of data **transferred over the wire**. They ensure consistent request/response formats and provide automatic validation.
 
 - **Mappers** – Convert between **domain models** (used inside services) and **schemas** (used at the API boundary) as well as between **domain models** and **database documents**. This decouples the internal representation from external contracts and database storage.
+  
 ![alt text](images/mapper.png)
+
 - **Models** – Plain Python classes (or dataclasses) that represent the core business entities (e.g., `Order`, `Event`, `Rule`). They are independent of any framework or storage mechanism.
+  
 ![alt text](images/model.png)
 
 
