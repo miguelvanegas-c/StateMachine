@@ -1,0 +1,46 @@
+# ─── Python / FastAPI ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# ─── Environment ─────────────────────────────────────────────────
+.env
+!.env.example
+
+# ─── Docker ──────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ─── Node / React / Vite ─────────────────────────────────────────
+node_modules/
+dist/
+.cache/
+.parcel-cache/
+*.local
+
+# ─── IDEs ────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ─── OS ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Logs ────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Test / Coverage ─────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage

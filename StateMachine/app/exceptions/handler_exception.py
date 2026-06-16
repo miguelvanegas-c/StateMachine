@@ -1,0 +1,101 @@
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+
+from app.schemas.response_schemas import ErrorResponse
+from app.exceptions.exceptions import (
+    NoOrderException,
+    InvalidOrderIdError,
+    NoStateError,
+    EventInvalidError,
+    EventNotExistError,
+    TicketNotExistError,
+    ConcurrentModificationException,
+)
+
+
+def register_exception_handlers(app):
+
+    @app.exception_handler(RequestValidationError)
+    async def handler_validation(request: Request, exc: RequestValidationError):
+        error_response = ErrorResponse(
+            status_code=422,
+            message="Validation error",
+            details=exc.errors()
+        ).model_dump()
+        return JSONResponse(status_code=422, content=error_response)
+
+    @app.exception_handler(NoOrderException)
+    async def handler_noorder(request: Request, exc: NoOrderException):
+        error_response = ErrorResponse(
+            status_code=404,
+            message=str(exc),
+            details="There is no order in the DB"
+        ).model_dump()
+        return JSONResponse(status_code=404, content=error_response)
+
+    @app.exception_handler(InvalidOrderIdError)
+    async def handler_invalid_order_id(request: Request, exc: InvalidOrderIdError):
+        error_response = ErrorResponse(
+            status_code=422,
+            message=str(exc),
+            details="Not a valid ObjectId, it must be a 12-byte input or a 24-character hex string"
+        ).model_dump()
+        return JSONResponse(status_code=422, content=error_response)
+
+    @app.exception_handler(NoStateError)
+    async def handler_nostate(request: Request, exc: NoStateError):
+        error_response = ErrorResponse(
+            status_code=404,
+            message=str(exc),
+            details="The requested state does not exist in the system"
+        ).model_dump()
+        return JSONResponse(status_code=404, content=error_response)
+
+    @app.exception_handler(EventInvalidError)
+    async def handler_event_invalid(request: Request, exc: EventInvalidError):
+        error_response = ErrorResponse(
+            status_code=409,
+            message=str(exc),
+            details="The event cannot be applied to the current state"
+        ).model_dump()
+        return JSONResponse(status_code=409, content=error_response)
+
+    @app.exception_handler(EventNotExistError)
+    async def handler_event_not_exist(request: Request, exc: EventNotExistError):
+        error_response = ErrorResponse(
+            status_code=404,
+            message=str(exc),
+            details="The event name is not defined in any state machine"
+        ).model_dump()
+        return JSONResponse(status_code=404, content=error_response)
+
+    @app.exception_handler(ConcurrentModificationException)
+    async def handler_concurrent_modification(request: Request, exc: ConcurrentModificationException):
+        error_response = ErrorResponse(
+            status_code=409,
+            message=str(exc),
+            details="The order was modified by another request. Please refresh and try again."
+        ).model_dump()
+        return JSONResponse(status_code=409, content=error_response)
+
+    @app.exception_handler(TicketNotExistError)
+    async def handler_ticket_not_exist(request: Request, exc: TicketNotExistError):
+        error_response = ErrorResponse(
+            status_code=404,
+            message=str(exc),
+            details="The ticket does not exist in the system"
+        ).model_dump()
+        return JSONResponse(status_code=404, content=error_response)
+
+    @app.exception_handler(HTTPException)
+    async def handler_http(request: Request, exc: HTTPException):
+        return JSONResponse(status_code=exc.status_code, content={"error": exc.detail})
+
+    @app.exception_handler(ValueError)
+    async def handler_value_error(request: Request, exc: ValueError):
+        return JSONResponse(status_code=400, content={"error": str(exc)})
+
+    @app.exception_handler(Exception)
+    async def handler_generic(request: Request, exc: Exception):
+        return JSONResponse(status_code=500, content={"error": "Internal server error"})

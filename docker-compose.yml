@@ -1,0 +1,57 @@
+services:
+
+  mongo:
+    image: mongo:7.0
+    container_name: mi_app_mongo
+    env_file:
+      - ./StateMachine/.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-secret}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-mydb}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  app:
+    build: ./StateMachine
+    container_name: mi_app_fastapi
+    env_file:
+      - ./StateMachine/.env
+    ports:
+      - "8000:8000"
+    environment:
+      MONGODB_URL: mongodb://${MONGO_USER:-root}:${MONGO_PASSWORD:-secret}@mongo:27017/${MONGO_DB:-mydb}?authSource=admin
+      DEBUG: ${DEBUG:-True}
+      PYTHONPATH: /app
+    depends_on:
+      - mongo
+    volumes:
+      - ./StateMachine/app:/app/app
+      - ./StateMachine/.env:/app/.env
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  frontend:
+    build: ./state_machine_frontend
+    container_name: mi_app_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - app
+    networks:
+      - app_network
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+    name: mi_app_mongo_data
+
+networks:
+  app_network:
+    driver: bridge

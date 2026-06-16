@@ -1,0 +1,81 @@
+[
+  {
+    "event_name": "PENDINGBIOMETRICALVERIFICATION",
+    "next_state_name": "ONHOLD",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "NOVERIFICATIONNEEDED",
+    "next_state_name": "PENDINGPAYMENT",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "PAYMENTFAILED",
+    "next_state_name": "CANCELLED",
+    "rules": [
+      {
+        "meta_data_key": "amount",
+        "value": "1000",
+        "operator": ">",
+        "actions": ["TICKET"]
+      }
+    ],
+    "version": 0.0
+  },
+  {
+    "event_name": "ORDERCANCELLED",
+    "next_state_name": "CANCELLED",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "BIOMETRICALVERIFICATIONSUCCESSFUL",
+    "next_state_name": "PENDINGPAYMENT",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "VERIFICATIONFAILED",
+    "next_state_name": "CANCELLED",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "ORDERCANCELLEDBYUSER",
+    "next_state_name": "CANCELLED",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "PAYMENTSUCCESSFUL",
+    "next_state_name": "CONFIRMED",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "PREPARINGSHIPMENT",
+    "next_state_name": "PROCESSING",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "ITEMDISPATCHED",
+    "next_state_name": "SHIPPED",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "ITEMRECEIVEDBYCUSTOMER",
+    "next_state_name": "DELIVERED",
+    "rules": [],
+    "version": 0.0
+  },
+  {
+    "event_name": "DELIVERYISSUE",
+    "next_state_name": "ONHOLD",
+    "rules": [],
+    "version": 0.0
+  }
+]
