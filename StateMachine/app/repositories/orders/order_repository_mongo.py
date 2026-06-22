@@ -60,7 +60,8 @@ class OrderRepositoryMongo(OrderRepository):
             "state": order.state,
             "created_at": order.created_at,
             "updated_at": order.updated_at,
-            "version": order.version
+            "version": order.version,
+            "transitions": order.transitions
         }
     def from_doc(self, doc: dict) -> Order:
         return Order(

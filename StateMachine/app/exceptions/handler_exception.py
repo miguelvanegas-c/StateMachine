@@ -7,7 +7,6 @@ from app.exceptions.exceptions import (
     NoOrderException,
     InvalidOrderIdError,
     NoStateError,
-    EventInvalidError,
     EventNotExistError,
     TicketNotExistError,
     ConcurrentModificationException,
@@ -52,14 +51,6 @@ def register_exception_handlers(app):
         ).model_dump()
         return JSONResponse(status_code=404, content=error_response)
 
-    @app.exception_handler(EventInvalidError)
-    async def handler_event_invalid(request: Request, exc: EventInvalidError):
-        error_response = ErrorResponse(
-            status_code=409,
-            message=str(exc),
-            details="The event cannot be applied to the current state"
-        ).model_dump()
-        return JSONResponse(status_code=409, content=error_response)
 
     @app.exception_handler(EventNotExistError)
     async def handler_event_not_exist(request: Request, exc: EventNotExistError):

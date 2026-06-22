@@ -1,7 +1,5 @@
-from app.exceptions.exceptions import EventNotExistError, NoStateError
 from app.models import Order, Ticket
 from app.repositories.tickets.ticket_repository_abstract import TicketRepository
-from app.services.transitions import TRANSITIONS
 
 class EventService():
 

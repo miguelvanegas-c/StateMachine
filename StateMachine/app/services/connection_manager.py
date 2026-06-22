@@ -1,43 +1,52 @@
-# websocket_manager.py
 from typing import Dict
 from fastapi import WebSocket, WebSocketDisconnect
+
 from app.models.order import Order
 
 
-
-class ConnectionManager():
+class ConnectionManager:
 
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}  
+        self.active_connections: Dict[str, list[WebSocket]] = {}
 
     async def connect(self, order_id: str, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[order_id] = websocket
+        if order_id not in self.active_connections:
+            self.active_connections[order_id] = []
+        self.active_connections[order_id].append(websocket)
 
-    def disconnect(self, order_id: str):
-        if order_id in self.active_connections:
-            del self.active_connections[order_id]
+    def disconnect(self, order_id: str, websocket: WebSocket):
+        connections = self.active_connections.get(order_id, [])
+        if websocket in connections:
+            connections.remove(websocket)
+        if not connections:
+            self.active_connections.pop(order_id, None)
 
     async def send_update(self, order_id: str, order: Order):
-        ws = self.active_connections.get(order_id)
-        if ws:
+        connections = self.active_connections.get(order_id, [])
+        disconnected = []
+        for websocket in connections:
             try:
-                order_out = self.to_orders_out(order)
-                await ws.send_json(order_out)
+                await websocket.send_json(self._to_dict(order))
             except WebSocketDisconnect:
-                self.disconnect(order_id)
+                disconnected.append(websocket)
+        for websocket in disconnected:
+            self.disconnect(order_id, websocket)
 
-    def to_orders_out(self, order: Order) -> dict:
+    def _to_dict(self, order: Order) -> dict:
         return {
             "id": order.id,
             "products_id": order.products_id,
             "amount": order.amount,
             "state": order.state,
             "created_at": str(order.created_at),
-            "updated_at": str(order.updated_at),    
-            "transitions": [{
-                "event": t.get("event"),
-                "new_state": t.get("new_state"),
-                "timestamp": str(t.get("timestamp"))
-            } for t in order.transitions]
+            "updated_at": str(order.updated_at),
+            "transitions": [
+                {
+                    "event": t.get("event"),
+                    "new_state": t.get("new_state"),
+                    "timestamp": str(t.get("timestamp")),
+                }
+                for t in order.transitions
+            ],
         }
