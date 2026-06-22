@@ -1,5 +1,5 @@
 # StateMachineApp
-
+---
 ## Architecture
 
 At a high level, the system consists of a **single-page application (SPA)** client that communicates with a **FastAPI** backend. The client sends HTTP requests for CRUD operations and establishes a **WebSocket** connection to receive real-time state updates for orders.
@@ -13,9 +13,9 @@ The frontend is a **React + TypeScript** application organised into several laye
 - **`components/`** – Reusable presentational units (e.g., tables, modals, forms). They receive data via props and emit events.
 - **`hooks/`** – Custom React hooks that encapsulate stateful logic and side effects (e.g., fetching orders, managing WebSocket connections).
 - **`models/`** – TypeScript interfaces that define the shape of data (Order, Ticket, Event, etc.).
-- **`pages/`** – Full-page components that combine hooks and components to implement specific views (OrdersPage, TicketsPage, EventsPage).
+- **`pages/`** – Full-page components that combine hooks and components to implement specific views (OrdersPage).
 - **`routes/`** – Routing configuration using React Router, including protected layouts and navigation.
-- **`services/`** – Modules that abstract all API and WebSocket communication (e.g., `orderService`, `eventService`, `createOrderSocket`).
+- **`services/`** – Modules that abstract all API and WebSocket communication (e.g., `orderService`, `createOrderSocket`).
 - **`context/`** – Global state management for cross-cutting concerns (currently not used, but ready for future needs).
 
 This layered structure ensures **separation of concerns**, **reusability**, and **testability**.
@@ -43,16 +43,12 @@ The backend is built with **FastAPI** and follows a multi‑layer architecture t
 
 - **Schemas** – Pydantic models that define the structure of data **transferred over the wire**. They ensure consistent request/response formats and provide automatic validation.
 
-- **Mappers** – Convert between **domain models** (used inside services) and **schemas** (used at the API boundary) as well as between **domain models** and **database documents**. This decouples the internal representation from external contracts and database storage.
 
-![alt text](images/mapper.png)
-
-
-- **Models** – Plain Python classes (or dataclasses) that represent the core business entities (e.g., `Order`, `Event`, `Rule`). They are independent of any framework or storage mechanism.
+- **Models** – Plain Python classes (or dataclasses) that represent the core business entities (e.g., `Order`, `Transition`, `Ticket`). They are independent of any framework or storage mechanism.
 
 ![alt text](images/model.png)
 
-
+---
 ## Design
 
 The application implements several design patterns to achieve **scalability**, **modifiability**, and **clean separation of concerns**.
@@ -61,54 +57,59 @@ The application implements several design patterns to achieve **scalability**, *
 
 The repository pattern completely decouples the business logic from the database implementation. Services only know about repositories, not about MongoDB collections or queries. This makes it easy to swap the database or write unit tests without a real database.
 
+
 ![alt text](images/repository.png)
 
-### Dependency Injection
+### KISS Principle (Keep It Simple, Stupid)
 
-No component directly instantiates its dependencies; instead, all dependencies are provided via constructors or function parameters (using FastAPI’s `Depends`). This follows the **Dependency Inversion Principle** – high-level modules depend on abstractions (interfaces), not on concrete implementations.
+The code maintains simplicity across multiple levels. The state machine is implemented as a simple declarative dictionary, making transitions explicit and easy to modify. Event handlers are clear functions without unnecessary hierarchies, validations use Pydantic declaratively, and concurrency control uses a simple `version` field for optimistic locking.
+
+The folder structure is intuitive and organized by responsibility, with clear separation between models, schemas, services, repositories, and routers. There is no over-engineering—complex patterns are avoided where they are not needed, abstractions are kept minimal, and the code remains straightforward and accessible.
+
+**Result**: Code that is easy to read, understand, and modify by any team member, while maintaining flexibility for future extensions.
 
 
-### Factory Pattern (for Rule Creation)
+### Single Responsibility Principle (SRP)
 
-Rules can be of different types (e.g., `NUMBER`, `STRING`, `DATE`). The **Factory pattern** centralises rule creation. The `RuleFactory` registry allows new rule types to be added without modifying existing code – just register a new factory class.
+The code applies the Single Responsibility Principle by assigning a single reason to change to each class and module. Each layer has a clear, well-defined responsibility:
 
-![alt text](images/factory.png)
+- **Routers**: Sole responsibility of receiving HTTP requests, validating input, and delegating to services. No business logic.
+- **Services**: Contain exclusively the business logic and orchestration. They are unaware of HTTP or databases.
+- **Repositories**: Responsible solely for data persistence and retrieval. They isolate the database technology.
+- **Schemas**: Manage only the validation and serialization of input/output data.
+- **Models**: Purely represent business entities without additional logic.
 
-### Strategy Pattern (for Rule Actions)
+Each class has **one single reason to change**:
+- Changes in business logic → Only `OrderService` is modified
+- Changes in the database → Only the repository is modified
+- Changes in the API → Only the router is modified
+---
+## Tech Stack
 
-When a rule is satisfied, one or more **actions** are executed (e.g., `TICKET`, `NOTIFY`, `ESCALATE`). The **Strategy pattern** encapsulates each action as a separate strategy. This enables:
-- Adding new actions without changing existing rules.
-- Dynamically assigning any combination of actions to a rule.
-- Isolating action logic for easy testing.
+### Backend
+- **FastAPI** - Web framework
+- **MongoDB** - Database
+- **PyMongo** - MongoDB driver
+- **Pydantic** - Data validation
 
-![alt text](images/strategy.png)
-
-### Data Mapping Layer
-
-Mappers are explicitly used to transform data between three representations:
-- **MongoDB document** (raw BSON)
-- **Domain model** (business entity)
-- **API schema** (Pydantic model)
-
-This prevents “leaky abstractions” – the service never sees a MongoDB document or a Pydantic schema. It only works with clean domain models.
-
-![alt text](images/mapper.png)
-
-All these patterns together make the system **loosely coupled**, **highly cohesive**, and ready for future extensions.
-
+### Frontend
+- **React** - UI library
+- **TypeScript** - Type safety
+- **React Router** - Navigation
+- **Vite** - Build tool
+---
 ## Functionality
-
 The application manages **orders** that go through a state machine. Key features:
 
 - **Create an order** – Specify a list of product IDs and the total amount.
 - **View all orders** – See current state, amount, and available transitions.
-- **Update order state** – Trigger an event (e.g., `approve`, `ship`, `deliver`) with optional metadata.
+- **Update order state** – Trigger an event (e.g., `PAYMENTSUCCESSFUL`, `ORDERCANCELLED`) with optional metadata.
 - **Real-time monitoring** – Open a modal that connects via WebSocket to watch an order’s state changes live.
-- **Ticket system** – When certain rule actions are triggered, a ticket is generated.
-- **Event & Rule management** – Define events (transitions) and attach conditional rules (e.g., if metadata.amount > 1000, create a ticket, for now, the plan is only to create tickets and rules using numbers, but the design is intended to be expanded).
+- **Concurrency control** – Optimistic locking with versioning prevents race conditions.
+- **Error handling** – Comprehensive exception handling with meaningful HTTP status codes.
 
-The frontend displays a dashboard with three sections: **Orders**, **Tickets**, and **Events**.
-
+The frontend displays a dashboard with one section: **Orders**
+---
 ## How to Run
 
 ### Prerequisites
