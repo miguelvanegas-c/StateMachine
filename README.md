@@ -107,8 +107,9 @@ The application manages **orders** that go through a state machine. Key features
 - **Real-time monitoring** – Open a modal that connects via WebSocket to watch an order’s state changes live.
 - **Concurrency control** – Optimistic locking with versioning prevents race conditions.
 - **Error handling** – Comprehensive exception handling with meaningful HTTP status codes.
-
+  
 The frontend displays a dashboard with one section: **Orders**
+
 ---
 ## How to Run
 
