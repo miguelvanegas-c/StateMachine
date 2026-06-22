@@ -2,11 +2,6 @@
 from pydantic import BaseModel, Field
 from typing import Generic, TypeVar, Optional, Any
 
-T = TypeVar('T')
-
-# app/schemas/response.py
-from pydantic import BaseModel, Field
-from typing import Generic, TypeVar, Optional, Any, List
 
 T = TypeVar('T')
 
