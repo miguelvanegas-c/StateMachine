@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-
 app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG)
 register_exception_handlers(app)
 app.include_router(order_router)
@@ -28,11 +27,3 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}

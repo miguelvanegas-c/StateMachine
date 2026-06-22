@@ -1,6 +1,3 @@
-# States that cannot be cancelled by the user (terminal or protected states)
-_CANCELLABLE_STATES = {"PENDING", "ONHOLD", "PENDINGPAYMENT", "CONFIRMED", "PROCESSING", "SHIPPED"}
-
 TRANSITIONS = {
     "PENDING": {
         "PENDINGBIOMETRICALVERIFICATION": "ONHOLD",
