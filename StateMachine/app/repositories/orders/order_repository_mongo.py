@@ -3,19 +3,16 @@ from datetime import datetime
 from app.repositories.orders.order_repository_abstract import OrderRepository
 from bson import ObjectId
 from bson.errors import InvalidId
-from app.mappers.orders.order_mapper_impl import OrderMapper
 from app.config.database_config import db
 from app.models import Order
 from app.exceptions.exceptions import InvalidOrderIdError
 
 
-class OrderRepositoryImpl(OrderRepository):
+class OrderRepositoryMongo(OrderRepository):
 
-    def __init__(self, mapper: OrderMapper):
-        self.mapper = mapper
 
     async def create(self, data: Order) -> Order:
-        doc = self.mapper.to_mongo(data)
+        doc = self.to_doc(data)
         result = await db["orders"].insert_one(doc)
         data.id = str(result.inserted_id)
         return data
@@ -23,12 +20,12 @@ class OrderRepositoryImpl(OrderRepository):
     async def list(self) -> list[Order | None]:
         cursor = db["orders"].find({})
         documents = await cursor.to_list(length=None)
-        return [self.mapper.from_mongo(doc) for doc in documents if doc]
+        return [self.from_doc(doc) for doc in documents if doc]
 
     async def get_by_id(self, order_id: str) -> Order | None:
         try:
             doc = await db["orders"].find_one({"_id": ObjectId(order_id)})
-            return self.mapper.from_mongo(doc) if doc else None
+            return self.from_doc(doc) if doc else None
         except InvalidId as e:
             raise InvalidOrderIdError(f"Invalid order ID: {order_id}")
 
@@ -54,3 +51,25 @@ class OrderRepositoryImpl(OrderRepository):
             }
         )
         return result.modified_count == 1
+
+
+    def to_doc(self, order: Order) -> dict:
+        return {
+            "products_id": order.products_id,
+            "amount": order.amount,
+            "state": order.state,
+            "created_at": order.created_at,
+            "updated_at": order.updated_at,
+            "version": order.version
+        }
+    def from_doc(self, doc: dict) -> Order:
+        return Order(
+            id=str(doc["_id"]),
+            products_id=doc["products_id"],
+            amount=doc["amount"],
+            state=doc["state"],
+            created_at=doc["created_at"],
+            updated_at=doc["updated_at"],
+            version=doc.get("version", 0),
+            transitions=doc.get("transitions", [])
+        )

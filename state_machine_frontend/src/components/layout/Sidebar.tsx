@@ -17,17 +17,6 @@ export const Sidebar = () => {
               Orders
             </Link>
           </li>
-
-          <li>
-            <Link to="/tickets">
-              Tickets
-            </Link>
-          </li>
-          <li>
-            <Link to="/events">
-              Events
-            </Link>
-          </li>
         </ul>
 
       </nav>
