@@ -126,7 +126,7 @@ Adjust MongoDB credentials in StateMachine/.env if required.
 
 2. **Build and run all services**
     ```bash
-   docker-compose up -d --build
+   docker compose --env-file ./StateMachine/.env up -d --build
    ```
 
 3. **Access the application**
