@@ -120,7 +120,7 @@ The frontend displays a dashboard with one section: **Orders**
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/miguelvanegas-c/StateMachine.git
    cd StateMachineApp
    ```
 Adjust MongoDB credentials in StateMachine/.env if required.
