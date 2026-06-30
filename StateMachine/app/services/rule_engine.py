@@ -29,7 +29,6 @@ class RuleEngine:
             condition = condition_evaluator(field_value, tree.value)
             return condition
 
-        for child in tree.children:
-            group_evaluator = self.group_evaluators.get(tree.operator)
-            results = [self.evaluate_tree(child, metadata) for child in tree.children]
-            return group_evaluator(results)
+        evaluator = self.group_evaluators.get(tree.operator)
+        results = [self.evaluate_tree(child, metadata) for child in tree.children]
+        return evaluator(results)

@@ -17,10 +17,10 @@ class RuleService:
     async def execute_rules(self, event_name: str, order, metadata: dict):
         rules = await self.get_rules_by_event_name(event_name)
         for rule in rules:
-            self.rule_engine.evaluate_tree(rule.tree, metadata)
-            await self.action_service.execute_action(rule.action, order, metadata)  
-    
-        
+            flag = self.rule_engine.evaluate_tree(rule.tree, metadata)
+            if flag:
+                await self.action_service.execute_action(rule.action, order, metadata)
+
     async def create_rule(self, rule_create: RuleCreate) -> Rule:
         event_name= rule_create.event_name.upper()
         name = rule_create.name.upper()

@@ -4,7 +4,6 @@ import asyncio
 
 from app.services.rule_service import RuleService
 from app.models.rule import Rule
-from app.models import order
 from app.schemas.rule_schemas import RuleCreate, RuleOut, RuleUpdate
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
@@ -48,6 +47,6 @@ def to_rule_out(rule: Rule) -> RuleOut:
     return RuleOut(
         name=rule.name,
         event_name=rule.event_name,
-        tree=rule.tree,
+        tree= rule.tree,
         action=rule.action,
     )
