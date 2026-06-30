@@ -33,7 +33,8 @@ class RuleRepositoryMongo(RuleRepository):
             "action": rule.action,
             "tree": self.group_node_to_doc(rule.tree),
             "created_at": rule.created_at,
-            "updated_at": rule.updated_at
+            "updated_at": rule.updated_at,
+            "active": rule.active
         }
     
     def group_node_to_doc(self, group_node: GroupNode) -> dict:
@@ -41,6 +42,15 @@ class RuleRepositoryMongo(RuleRepository):
             "type": group_node.type,
             "operator": group_node.operator,
             "children": [self.group_node_to_doc(child) if isinstance(child, GroupNode) else self.condition_node_to_doc(child) for child in group_node.children]
+        }
+    
+    def condition_node_to_doc(self, condition_node) -> dict:
+        return {
+            "type": condition_node.type,
+            "field": condition_node.field,
+            "operator": condition_node.operator,
+            "value": condition_node.value,
+            "value_type": condition_node.value_type
         }
     
     def from_doc(self, doc: dict) -> Rule:
@@ -51,7 +61,8 @@ class RuleRepositoryMongo(RuleRepository):
             action=doc["action"],
             tree=self.group_node_from_doc(doc["tree"]),
             created_at=doc["created_at"],
-            updated_at=doc["updated_at"]
+            updated_at=doc["updated_at"],
+            active=doc["active"]
         )
     
     def group_node_from_doc(self, doc: dict) -> GroupNode:
@@ -67,14 +78,6 @@ class RuleRepositoryMongo(RuleRepository):
             children=children
         )
     
-    def condition_node_to_doc(self, condition_node) -> dict:
-        return {
-            "type": condition_node.type,
-            "field": condition_node.field,
-            "operator": condition_node.operator,
-            "value": condition_node.value,
-            "value_type": condition_node.value_type
-        }
 
     def condition_node_from_doc(self, doc: dict) -> ConditionNode:
         return ConditionNode(

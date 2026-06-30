@@ -2,7 +2,6 @@
 
 from app.exceptions.exceptions import ActionNotExistError
 
-
 class ActionService:
 
     def __init__(self):

@@ -16,6 +16,7 @@ class Rule:
     event_name: str = ""
     tree: GroupNode = None
     action: str = ""
+    active: bool = True
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
@@ -27,6 +28,7 @@ class Rule:
                 tree= GroupNode.create_new(tree),
                 action=action,
                 name=name,
+                active=True,
                 created_at=now,
                 updated_at=now,
             )

@@ -17,9 +17,10 @@ class RuleService:
     async def execute_rules(self, event_name: str, order, metadata: dict):
         rules = await self.get_rules_by_event_name(event_name)
         for rule in rules:
-            flag = self.rule_engine.evaluate_tree(rule.tree, metadata)
-            if flag:
-                await self.action_service.execute_action(rule.action, order, metadata)
+            if rule.active:
+                flag = self.rule_engine.evaluate_tree(rule.tree, metadata)
+                if flag:
+                    await self.action_service.execute_action(rule.action, order, metadata)
 
     async def create_rule(self, rule_create: RuleCreate) -> Rule:
         event_name= rule_create.event_name.upper()
@@ -35,9 +36,15 @@ class RuleService:
             action=action  
         )
         return await self.repository.create(rule)
+    
+    async def update_rule(self, event_name: str, name: str) -> Rule:
+        event_name = event_name.upper()
+        name = name.upper()
+        rule = await self.get_rule_by_event_name_and_name(event_name, name)
+        rule.active = not rule.active
+        return await self.repository.create(rule)
 
     
-
     async def get_rule_by_event_name_and_name(self, event_name: str, name: str) -> Rule:
         event_name = event_name.upper()
         name = name.upper()
@@ -63,8 +70,8 @@ class RuleService:
                 raise RuleExistError(event_name,name)   
         except ValueError:
             raise EventNotExistError(event_name)
- 
-        
+
+
     def validate_conditions(self, node: GroupNodeSchema | ConditionNodeSchema) -> None:
         if node.type == "CONDITION":
             tipo_esperado = str if node.value_type == "string" else float
