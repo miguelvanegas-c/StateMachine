@@ -8,19 +8,18 @@ class StateMachineService():
         self.event_service = event_service
 
     async def process_event(self, order:Order, event_name:str, metadata:dict) -> str:
-        transitions = self.get_transitions(state = order.state)
-        next_state = self.get_next_state(event_name = event_name, transitions = transitions)
-        await self.event_service.hand_event(order = order, event_name = event_name, metadata = metadata)
+        next_state = self.transition_lookup(state = order.state, event_name = event_name)
+        await self.event_service.handle_event(order = order, event_name = event_name, metadata = metadata)
         return next_state
     
-    def get_transitions(self, state:str):
+    def transition_lookup(self, state:str, event_name:str) -> dict:
         transitions = TRANSITIONS.get(state)
         if transitions is None:
             raise NoStateError(state)
-        return transitions   
-
-    def get_next_state(self, event_name:str, transitions:dict):
         next_state = transitions.get(event_name)
         if next_state is None:
             raise EventNotExistError(event_name)
-        return next_state
+        return next_state 
+
+    
+        

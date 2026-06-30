@@ -61,7 +61,14 @@ class OrderRepositoryMongo(OrderRepository):
             "created_at": order.created_at,
             "updated_at": order.updated_at,
             "version": order.version,
-            "transitions": order.transitions
+            "transitions": [self.transition_to_doc(transition) for transition in order.transitions]
+        }
+    
+    def transition_to_doc(self, transition) -> dict:
+        return {
+            "event": transition.event,
+            "new_state": transition.new_state,
+            "timestamp": transition.timestamp
         }
     def from_doc(self, doc: dict) -> Order:
         return Order(
@@ -72,5 +79,11 @@ class OrderRepositoryMongo(OrderRepository):
             created_at=doc["created_at"],
             updated_at=doc["updated_at"],
             version=doc.get("version", 0),
-            transitions=doc.get("transitions", [])
+            transitions=[self.transition_from_doc(transition) for transition in doc.get("transitions", [])]
         )
+    def transition_from_doc(self, doc: dict):
+        return {
+            "event": doc["event"],
+            "new_state": doc["new_state"],
+            "timestamp": doc["timestamp"]
+        }

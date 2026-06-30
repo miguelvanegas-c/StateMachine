@@ -38,3 +38,23 @@ class TicketNotExistError(Exception):
             super().__init__("No tickets found")
         else:
             super().__init__(f"No ticket found for order '{order_id}'")
+
+class InvalidTypeConditionException(Exception):
+    def __init__(self, field: str, expected_type: str):
+        super().__init__(f"The value for '{field}' must be of type '{expected_type}'")
+
+
+class RuleNotExistError(Exception):
+    def __init__(self, event_name: str, name: str):
+        super().__init__(f"The rule for event '{event_name}' and name '{name}' does not exist")
+
+class ActionNotExistError(Exception):
+    def __init__(self, action: str):
+        super().__init__(f"The action '{action}' does not exist")
+
+class RuleExistError(Exception):
+    def __init__(self, event_name: str, name: str):
+        if name is None:
+            super().__init__(f"The rule for event '{event_name}' already exists")
+        else:       
+            super().__init__(f"The rule for event '{event_name}' and name '{name}' already exists")

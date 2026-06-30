@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+from app.routers.rule_router import router as rule_router
 from fastapi.middleware.cors import CORSMiddleware 
 from fastapi import FastAPI
 from app.config.application_config import settings
@@ -16,6 +17,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG)
 register_exception_handlers(app)
 app.include_router(order_router)
+app.include_router(rule_router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
