@@ -46,6 +46,7 @@ class RuleService:
             raise RuleNotExistError(event_name,name)
         return rule
 
+
     async def get_rules_by_event_name(self, event_name: str) -> list[Rule]:
         event_name = event_name.upper()
         rules = await self.repository.get_by_event_name(event_name)
@@ -57,12 +58,12 @@ class RuleService:
     async def validate_rule(self, event_name: str, name: str) -> None:
         try:
             EVENTS(event_name)
-            await self.get_rule_by_event_name_and_name(event_name, name)
-            raise RuleExistError(event_name,name)     
+            rule = await self.repository.get_by_event_name_and_name(event_name, name)
+            if rule:
+                raise RuleExistError(event_name,name)   
         except ValueError:
             raise EventNotExistError(event_name)
-        except RuleNotExistError:
-            return
+ 
         
     def validate_conditions(self, node: GroupNodeSchema | ConditionNodeSchema) -> None:
         if node.type == "CONDITION":
