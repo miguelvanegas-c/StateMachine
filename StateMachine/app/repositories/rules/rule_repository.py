@@ -1,10 +1,11 @@
+
 from abc import ABC, abstractmethod
 
 from app.models.rule import Rule
 
 
-
 class RuleRepository(ABC):
+    
     @abstractmethod
     async def create(self, data: Rule) -> Rule:
         raise NotImplementedError
@@ -21,6 +22,3 @@ class RuleRepository(ABC):
     @abstractmethod
     async def update(self, rule: Rule) -> Rule:
         raise NotImplementedError
-
-
-   

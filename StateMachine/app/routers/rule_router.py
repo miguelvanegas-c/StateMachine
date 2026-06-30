@@ -4,9 +4,9 @@ import asyncio
 
 from app.schemas.node_schemas import ConditionNodeSchema, GroupNodeSchema
 from app.services.rule_service import RuleService
-from app.models.rule import Rule
+from app.models.rule import RuleVersion
 from app.schemas.rule_schemas import RuleCreate, RuleOut
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends
 from dataclasses import asdict
 from app.dependencies.dependencies import get_rule_service 
 from app.schemas.response_schemas import APIResponse
@@ -38,16 +38,14 @@ async def get_rule(
 async def update_rule(
     event_name: str,
     name: str,
+    rule_create: RuleCreate,
     service: RuleService = Depends(get_rule_service),
 ) -> APIResponse:
-    rule = await service.update_rule(event_name, name)
+    rule = await service.update_rule(event_name, name, rule_create)
     return APIResponse(message="Rule updated", status_code=200, data=to_rule_out(rule))
 
 
-
-
-
-def to_rule_out(rule: Rule) -> RuleOut:
+def to_rule_out(rule: RuleVersion) -> RuleOut:
     return RuleOut(
         name=rule.name,
         event_name=rule.event_name,
