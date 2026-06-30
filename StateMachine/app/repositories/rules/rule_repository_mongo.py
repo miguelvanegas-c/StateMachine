@@ -26,6 +26,13 @@ class RuleRepositoryMongo(RuleRepository):
         documents = await cursor.to_list(length=None)
         return [self.from_doc(doc) for doc in documents if doc]
     
+    async def update(self, rule: Rule) -> Rule:
+        await db["rules"].update_one(
+            {"event_name": rule.event_name, "name": rule.name},
+            {"$set": {"active": rule.active, "updated_at": rule.updated_at}}
+        )
+        return rule
+    
     def to_doc(self, rule: Rule) -> dict:
         return {
             "name": rule.name,

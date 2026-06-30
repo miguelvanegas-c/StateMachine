@@ -5,7 +5,7 @@ import asyncio
 from app.schemas.node_schemas import ConditionNodeSchema, GroupNodeSchema
 from app.services.rule_service import RuleService
 from app.models.rule import Rule
-from app.schemas.rule_schemas import RuleCreate, RuleOut, RuleUpdate
+from app.schemas.rule_schemas import RuleCreate, RuleOut
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from dataclasses import asdict
 from app.dependencies.dependencies import get_rule_service 

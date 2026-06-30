@@ -17,5 +17,10 @@ class RuleRepository(ABC):
     @abstractmethod
     async def get_by_event_name(self, event_name: str) -> list[Rule]:
         raise NotImplementedError
+    
+    @abstractmethod
+    async def update(self, rule: Rule) -> Rule:
+        raise NotImplementedError
+
 
    

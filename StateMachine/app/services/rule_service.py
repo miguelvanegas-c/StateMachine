@@ -1,11 +1,13 @@
 
+from datetime import datetime
+
 from app.services.rule_engine import RuleEngine
 from app.services.action_service import ActionService
 from app.repositories.rules.rule_repository import RuleRepository
 from app.exceptions.exceptions import InvalidTypeConditionException, EventNotExistError, RuleExistError, RuleNotExistError
 from app.schemas.node_schemas import ConditionNodeSchema, GroupNodeSchema
 from app.models.rule import Rule
-from app.schemas.rule_schemas import RuleCreate, RuleUpdate
+from app.schemas.rule_schemas import RuleCreate
 from app.services.events import EVENTS
 class RuleService:
 
@@ -42,7 +44,8 @@ class RuleService:
         name = name.upper()
         rule = await self.get_rule_by_event_name_and_name(event_name, name)
         rule.active = not rule.active
-        return await self.repository.create(rule)
+        rule.updated_at = datetime.now()
+        return await self.repository.update(rule)
 
     
     async def get_rule_by_event_name_and_name(self, event_name: str, name: str) -> Rule:
