@@ -52,12 +52,15 @@ class RuleService:
     async def update_rule(self, event_name: str, name: str, rule_create: RuleCreate) -> RuleVersion:
         event_name = event_name.upper()
         name = name.upper()
+        action = rule_create.action.upper()
+        self.validate_conditions(rule_create.tree)
+        self.action_service.validate_action(action)
         rule = await self.rule_repository.get_by_event_name_and_name(event_name, name)
         rule_version = RuleVersion.create_new(
             name=name,
             event_name=event_name, 
             tree=rule_create.tree,
-            action=rule_create.action  
+            action=action  
         )
         new_rule_version = await self.rule_version_repository.create(rule_version)
         rule.updated_at = datetime.now()
