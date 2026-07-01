@@ -49,9 +49,9 @@ class RuleService:
         await self.rule_repository.create(rule)
         return new_rule_version
     
-    async def update_rule(self, event_name: str, name: str, rule_create: RuleCreate) -> RuleVersion:
-        event_name = event_name.upper()
-        name = name.upper()
+    async def update_rule(self, rule_create: RuleCreate) -> RuleVersion:
+        event_name = rule_create.event_name.upper()
+        name = rule_create.name.upper()
         action = rule_create.action.upper()
         self.validate_conditions(rule_create.tree)
         self.action_service.validate_action(action)
@@ -90,8 +90,6 @@ class RuleService:
     async def get_rules_by_event_name(self, event_name: str) -> list[RuleVersion]:
         event_name = event_name.upper()
         rules = await self.rule_repository.get_by_event_name(event_name)
-        if len(rules) == 0:
-            raise RuleNotExistError(event_name)
         return [await self.rule_version_repository.get_by_id(rule.actual_version) for rule in rules]
 
 

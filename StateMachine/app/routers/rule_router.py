@@ -43,13 +43,11 @@ async def get_rule_history(
 
 @router.patch("")
 async def update_rule(
-    event_name: str,
-    name: str,
     rule_create: RuleCreate ,
     service: RuleService = Depends(get_rule_service),
     
 ) -> APIResponse:
-    rule = await service.update_rule(event_name, name, rule_create)
+    rule = await service.update_rule(rule_create)
     return APIResponse(message="Rule updated", status_code=200, data=to_rule_out(rule))
 
 
