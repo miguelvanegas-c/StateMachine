@@ -125,12 +125,19 @@ The frontend displays a dashboard with one section: **Orders**
    ```
 Adjust MongoDB credentials in StateMachine/.env if required.
 
-2. **Build and run all services**
+2. **Build frontend**
+   ```bash
+   cd state_machine_frontend
+   npm install
+   npm run build
+   cd .
+   ```
+3. **Build and run all services**
     ```bash
    docker compose --env-file ./StateMachine/.env up -d --build
    ```
 
-3. **Access the application**
+4. **Access the application**
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8000/docs (Swagger UI)
 
@@ -160,3 +167,5 @@ docker logs mi_app_frontend -f
  ```bash
 docker logs mi_app_mongo -f
  ```
+## Video
+The following video demonstrates the service's functionality, including an extension that allows for the creation of business rules for each respective event, as well as a rule history and versioning, with the aim of protecting business integrity when updating rules.

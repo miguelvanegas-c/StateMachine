@@ -1,6 +1,9 @@
+from app.exceptions.exceptions import NotInformationError
 from app.models.condition_node import ConditionNode
 from app.models.group_node import GroupNode
 
+import logging
+logger = logging.getLogger(__name__)
 
 class RuleEngine:
 
@@ -23,7 +26,10 @@ class RuleEngine:
         if tree.type == "CONDITION":
             condition_evaluator = self.condition_evaluators.get(tree.operator)
             field_value = metadata.get(tree.field)
-            return condition_evaluator(field_value, tree.value)
+            if field_value is None:
+                raise NotInformationError(f"Field '{tree.field}' not found in metadata.")
+            condition_result = condition_evaluator(field_value, tree.value)
+            return condition_result
         
         evaluator = self.group_evaluators.get(tree.operator)
         results = [self.evaluate_tree(child, metadata) for child in tree.children]

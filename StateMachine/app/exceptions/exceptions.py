@@ -58,3 +58,7 @@ class RuleExistError(Exception):
             super().__init__(f"The rule for event '{event_name}' already exists")
         else:       
             super().__init__(f"The rule for event '{event_name}' and name '{name}' already exists")
+
+class NotInformationError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
