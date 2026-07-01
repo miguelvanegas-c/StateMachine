@@ -21,4 +21,3 @@ class RuleOut(BaseModel):
     event_name: str
     tree: dict[str, Any]
     action: str
-    active: bool

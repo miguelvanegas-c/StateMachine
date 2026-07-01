@@ -1,11 +1,12 @@
 from functools import lru_cache
 
 
-from app.repositories.rules_versions.rule_version_repository import RuleVersionRepository
-from app.services.rule_engine import RuleEngine
-from app.services.action_service import ActionService
 from app.repositories.rules.rule_repository import RuleRepository
 from app.repositories.rules.rule_repository_mongo import RuleRepositoryMongo
+from app.services.rule_engine import RuleEngine
+from app.services.action_service import ActionService
+from app.repositories.rules_version.rule_version_repository import RuleVersionRepository
+from app.repositories.rules_version.rule_version_repository_mongo import RuleVersionRepositoryMongo
 from app.repositories.orders.order_repository_abstract import OrderRepository
 from app.repositories.orders.order_repository_mongo import OrderRepositoryMongo
 from app.repositories.tickets.ticket_repository_abstract import TicketRepository
@@ -33,6 +34,9 @@ def get_ticket_repository() -> TicketRepository:
     return TicketRepositoryMongo()
 
 def get_rule_version_repository() -> RuleVersionRepository:
+    return RuleVersionRepositoryMongo()
+
+def get_rule_repository() -> RuleRepository:
     return RuleRepositoryMongo()
 
 # --- Services ---
@@ -57,13 +61,16 @@ def get_order_service() -> OrderService:
 
 def get_rule_service() -> RuleService:
     return RuleService(
-        repository=get_rule_version_repository(),
+        rule_version_repository=get_rule_version_repository(),
+        rule_repository=get_rule_repository(),
         action_service=get_action_service(),
         rule_engine=get_rule_engine()
     )
 
 def get_action_service() -> 'ActionService':
-    return ActionService()
+    return ActionService(
+        ticket_repository=get_ticket_repository()
+    )
 
 def get_rule_engine() -> 'RuleEngine':
     return RuleEngine()
